@@ -7,12 +7,18 @@ use std::usize;
 // This file contain all typing-related functions
 
 macro_rules! get_node {
-    ($self:tt, $index:tt) => {
-        $self.lambda_storage
+    ($self:tt, $index:tt) => {{
+        let v = $self.lambda_storage
             .get($index)
             .cloned()
-            .ok_or_else(|| TypingError::NodeIncorrectPointer($index))?
-    };
+            .ok_or_else(|| TypingError::NodeIncorrectPointer($index))?;
+        if let Const(name) = v {
+            let id = $self.deep_copy($self.constants[&name].0);
+            $self.lambda_storage.get(id).unwrap().clone()
+        } else {
+            v
+        }
+    }};
 }
 
 #[allow(dead_code, unused_variables)]

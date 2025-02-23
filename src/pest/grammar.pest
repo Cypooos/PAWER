@@ -1,6 +1,6 @@
 WHITESPACE = _{ " " | NEWLINE | "\t" | "\r" }
 COMMENT    = _{
-    "/*" ~ (!"*/" ~ ANY)* ~ "*/"
+    "(*" ~ (!"*)" ~ ANY)* ~ "*)"
   | "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE
 }
 
@@ -31,7 +31,7 @@ command = _{ ( goal | qed | goal | theorem | define | cancel | check | reduce | 
   reduce  = !{ reduce_token ~ lambda }
     reduce_token = _{"Reduce" | "Compute"}
   cancel  = !{ "Cancel" | "Abort" }
-  inductive = !{ "Inductive" ~ variable ~ i_params ~ ":" ~ lambda ~ ":=" ~ ("|"? ~ i_case)? ~ ("|" ~ i_case)* }
+  inductive = !{ "Inductive" ~ variable ~ i_params ~ ":" ~ lambda ~ ":=" ~ ("|"* ~ i_case)? ~ ("|"+ ~ i_case)* }
     i_params = !{ typed_vars_list? }
     i_case = !{ variable ~ ":" ~ lambda }
   fixpoint = !{ "Fixpoint" ~ variable ~ typed_vars_list ~ "{" ~ "struct" ~ variable ~ "}" ~ ":" ~ lambda ~ ":=" ~ lambda }
@@ -60,7 +60,7 @@ forall     = !{ ("forall" | "∀") ~ many_vars ~ "," ~ top_expr }
 func       = !{ "fun" ~ many_vars ~ "=>" ~ top_expr }
 fix         = !{ "fix" ~ variable ~ typed_vars_list ~ "{" ~ "struct" ~ variable ~ "}" ~ ":" ~ let_case ~ ":=" ~ top_expr }
 match_      = !{ "match" ~ let_case ~ "as" ~ variable ~ "in" ~ pattern ~ "return" ~ let_case ~ "with" ~ m_cases ~ "end" }
-  m_cases   = !{ ("|" ~ match_in)* }
+  m_cases   = !{ "|"* ~ match_in? ~ ("|"+ ~ match_in)* }
   match_in  = !{ pattern ~ "=>" ~ let_case }
   pattern   = !{ (p_wild | p_in | variable)* }
     p_wild  = !{ "_" }
@@ -121,4 +121,4 @@ litteral = _{
 
 lprop     = !{ "Prop" }
 lset      = !{ "Set" }
-ltype     = !{ "Type" ~ "(" ~ number ~ ")" }
+ltype     = !{ "Type(" ~ number ~ ")" }

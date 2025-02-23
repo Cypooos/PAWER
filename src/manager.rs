@@ -889,12 +889,13 @@ impl GlobalContext {
             }
         }
         let prop = self.insert_node(LambdaNode::Prop);
-        while let LambdaNode::Pi(_, a, b) = self.lambda_storage[t] {
+        while let LambdaNode::Pi(v, a, b) = self.lambda_storage[t].clone() {
             let type_x = self.get_type(&mut context, a).unwrap();
             if !self.subtype(&mut context, type_x, &mut Vec::new(), prop).is_ok() {
                 return Eliminability::Uneliminable
             } /* Else it's Prop and it's still eliminable */
             t = b;
+            context.push(((v.clone()),a));
         }
         Eliminability::Eliminable
     }
