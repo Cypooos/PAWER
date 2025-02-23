@@ -1,4 +1,4 @@
-# `pawer_core`
+# PAWER: Proof Assistant lib Written Entirely in Rust
 
 A rust library to work with the Calculus of Construction. Made for the PAWER (Proof Assistant Web Embeded in Rust) project.
 
