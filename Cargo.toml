@@ -8,7 +8,7 @@ authors = [
     "Florent Ferrari",
     "Wassel Bousmaha",
 ]
-description = "A rust library to doc Calculus of Construction"
+description = "A rust library to work on the Calculus of Construction"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Cypooos/PAWER"
 readme = "README.md"
