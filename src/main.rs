@@ -1,6 +1,6 @@
 use std::io;
 use std::io::Write;
-use pawer_core::{print_comms,print_state};
+use pawer::{print_comms,print_state};
 
 // A simple top-level, mostly used for debbuging
 fn main() -> io::Result<()> {
