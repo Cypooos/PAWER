@@ -1,5 +1,5 @@
 [package]
-name = "pawer_core"
+name = "pawer"
 version = "0.2.0"
 edition = "2021"
 authors = [
