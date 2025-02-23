@@ -129,11 +129,23 @@ impl GlobalContext {
                 }
             }
             Command::Search(t) => {
-                let constant_res = self.constants.iter().map(|(k,(def,tp))|
-                    format!("{} : {}\n      := {}.",var_to_string(&k),self.lambda_to_string(*tp),self.lambda_to_string(*def))
-                ).filter(|str| str.contains(&t)).collect::<Vec<String>>().join("\n");
+                let mut constant_res = self.constants.iter().map(
+                    |(k,(def,tp))| {
+                        let d = self.lambda_to_string(*def);
+                        if d.len() < 50 {
+                            format!("{}\t: {} := {}.",var_to_string(&k),self.lambda_to_string(*tp),d)
+                        } else {
+                            format!("{}\t: {}\n  \t:= {}.",var_to_string(&k),self.lambda_to_string(*tp),d)
+                        }
+                    }
+                ).filter(|str| str.contains(&t))
+                .collect::<Vec<String>>();
+                constant_res.sort();
+                let constant_res = constant_res.join("\n");
 
-                let inductive_res = self.inductives.iter().map(|(j,_)|self.inductive_to_string(j)).filter(|str| str.contains(&t)).collect::<Vec<String>>().join("\n");
+                let mut inductive_res = self.inductives.iter().map(|(j,_)|self.inductive_to_string(j)).filter(|str| str.contains(&t)).collect::<Vec<String>>();
+                inductive_res.sort();
+                let inductive_res = inductive_res.join("\n");
 
                 Ok(format!(" --- Inductives ---\n{}\n\n --- Functions / Def / Theorems ---\n{}",inductive_res,constant_res))
             }
@@ -150,6 +162,12 @@ impl GlobalContext {
             }
         };
         return Ok(last)
+    }
+
+    /// Load the standard library into the GlobalContext
+    pub fn load_prelude(&mut self) {
+        self.exec_commands(&format!(include_str!("stdlib.v"),usize::MAX - 1)
+        ).expect("Prelude doesn't work!");
     }
 
     /// Perform the `Check` command. Tries to type `lamb` using self.get_type
@@ -651,7 +669,7 @@ impl GlobalContext {
 
         // the goal of match is on the last variable created 
         let shifted_functional_goal_for_match = self.shift_index_keep(2, 1, shifted_functional_goal);
-        println!("Return type of match is {}",self.lambda_to_string_with_context(shifted_functional_goal_for_match,&mut self.goals[goal_id].context.clone()));
+        // println!("Return type of match is {}",self.lambda_to_string_with_context(shifted_functional_goal_for_match,&mut self.goals[goal_id].context.clone()));
         
         // Creating each branch of the match
         let mut cases = vec![];
@@ -1057,7 +1075,7 @@ impl GlobalContext {
         let root = proof_info.root;
         let prop = proof_info.prop;
         let name_opt = proof_info.name.clone();
-        println!("{}", self.lambda_to_string(root));
+        // println!("{}", self.lambda_to_string(root));
         match self.typecheck_with_variables_context(&mut vec![], root , prop) {
             Ok(()) => {
                 let otp = if let Some(name) = name_opt {
