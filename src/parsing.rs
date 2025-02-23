@@ -92,7 +92,11 @@ pub fn pair_to_expr(v: Pair<Rule>) -> LambdaTerm {
             };
             let mut otp = pair_to_expr(inside.next().unwrap());
             for (name, ty) in typed_vars_list.into_iter().rev() {
-                otp = LambdaTerm::Pi(name, Box::new(ty), Box::new(otp))
+                if &name.0 == "_" {
+                    otp = LambdaTerm::Pi((format!(""),0), Box::new(ty), Box::new(otp))
+                } else {
+                    otp = LambdaTerm::Pi(name, Box::new(ty), Box::new(otp))
+                }
             }
             otp
         },

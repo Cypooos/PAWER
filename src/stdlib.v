@@ -1,4 +1,4 @@
-(* Logic.v *)
+(* ---- Logic ---- *)
 
 Definition Type := Type({}).
 Inductive True : Prop := I : True.
@@ -24,6 +24,7 @@ Inductive eq (A:Type) (x:A) : A -> Prop := eq_refl : eq A x x.
 Lemma eq_ind : forall (A: Set) (x y: A) (P: A -> Prop), eq A x y -> P x -> P y.
   intros. exact (match H as _ in eq _ _ a return P a with | eq_refl _ _ => H1 end).
 Qed.
+
 Theorem fun_eq : forall (A B: Set) (f: A -> B) (x y : A), eq A x y -> eq B (f x) (f y).
   intros.
   apply eq_ind A x y (fun (a: A) => eq B (f x) (f a)).
