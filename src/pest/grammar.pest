@@ -1,0 +1,124 @@
+WHITESPACE = _{ " " | NEWLINE | "\t" | "\r" }
+COMMENT    = _{
+    "/*" ~ (!"*/" ~ ANY)* ~ "*/"
+  | "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE
+}
+
+tokens = @{ ("as" | "in" | "return" | "with" | "fun" | "|" | "=>" | "=" | ":=" | "end") ~ !name } 
+
+lowercase_string = @{ ASCII_ALPHA_LOWER ~ ASCII_ALPHA* }
+uppercase_string = @{ ASCII_ALPHA_UPPER ~ ASCII_ALPHA* }
+number           = @{ (ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) | "0" }
+name             = @{ (ASCII_ALPHANUMERIC | "_")+ }
+variable         = !{ !tokens ~ name }
+not_dot          = @{ (!"." ~ ANY)* }
+
+typed_vars = !{ variable+ ~ ":" ~ lambda }
+typed_vars_list = !{ ("(" ~ typed_vars ~ ")")+ }
+
+commands_top = _{ SOI ~ command* ~ EOI }
+commands = _{ command* }
+command_top = _{ SOI ~ command ~ EOI }
+command = _{ ( goal | qed | goal | theorem | define | cancel | check | reduce | inductive | fixpoint | tactic | print_proof | print | search | clean ) ~ "."+ }
+  qed   = !{ "Qed" }
+  goal  = !{ "Goal" ~ lambda }
+  define  = !{ define_token ~ variable ~ define_vars ~ ":=" ~ lambda }
+    define_token  = _{ "Define" | "Definition" | "Def" }
+    define_vars = !{ typed_vars_list? }
+  theorem  = !{ thm_token ~ variable ~ ":" ~ lambda }
+    thm_token = _{ "Theorem" | "Lemma" | "Fact" | "Remark" | "Corollary" | "Proposition" | "Property" }
+  check  = !{ "Check" ~ lambda }
+  reduce  = !{ reduce_token ~ lambda }
+    reduce_token = _{"Reduce" | "Compute"}
+  cancel  = !{ "Cancel" | "Abort" }
+  inductive = !{ "Inductive" ~ variable ~ i_params ~ ":" ~ lambda ~ ":=" ~ ("|"? ~ i_case)? ~ ("|" ~ i_case)* }
+    i_params = !{ typed_vars_list? }
+    i_case = !{ variable ~ ":" ~ lambda }
+  fixpoint = !{ "Fixpoint" ~ variable ~ typed_vars_list ~ "{" ~ "struct" ~ variable ~ "}" ~ ":" ~ lambda ~ ":=" ~ lambda }
+  print    = !{ "Print" ~ lambda }
+  search   = !{ "Search" ~ not_dot }
+  print_proof = !{ "PrintProof" }
+  clean = !{ "Clean" }
+
+
+tactic = !{ exact | intro | intros | apply | cut | unfold | simpl | induction }
+  exact = !{ "exact" ~ lambda }
+  intros = !{ "intros" ~ variable* }
+  intro = !{ "intro " ~ variable? }
+  apply = !{ "apply " ~ lambda }
+  cut = !{ "cut " ~ lambda }
+  unfold = !{ "unfold " ~ variable }
+  simpl = !{ "simpl" }
+  induction = !{ "induction" ~ variable }
+
+
+lambda = _{ top_expr }
+lambda_top = _{ SOI ~ top_expr ~ EOI }
+
+forall     = !{ ("forall" | "∀") ~ many_vars ~ "," ~ top_expr }
+  many_vars = _{ typed_vars | typed_vars_list } // we must have parenthesis if we have several inputs
+func       = !{ "fun" ~ many_vars ~ "=>" ~ top_expr }
+fix         = !{ "fix" ~ variable ~ typed_vars_list ~ "{" ~ "struct" ~ variable ~ "}" ~ ":" ~ let_case ~ ":=" ~ top_expr }
+match_      = !{ "match" ~ let_case ~ "as" ~ variable ~ "in" ~ pattern ~ "return" ~ let_case ~ "with" ~ m_cases ~ "end" }
+  m_cases   = !{ ("|" ~ match_in)* }
+  match_in  = !{ pattern ~ "=>" ~ let_case }
+  pattern   = !{ (p_wild | p_in | variable)* }
+    p_wild  = !{ "_" }
+    p_in    = _{ "(" ~ pattern ~")" }
+implies    = !{ or_case ~ "->" ~ implies_case }
+app        = !{ !tokens ~ litteral ~ (!tokens ~ litteral)+ }
+let        = !{ "let" ~ "(" ~ variable ~ ":" ~ top_expr ~ ")" ~ "=" ~ let_case ~ "in" ~ let_case }
+
+// prio of 10
+top_expr = _{
+  | forall | func
+  | implies_case
+}
+
+// prio of 20
+implies_case = _{
+  implies | or_case
+}
+
+// prio of 30
+or_case = _{
+  and_case
+}
+
+// prio of 40
+and_case = _{
+  not_case
+}
+
+// prio of 50
+not_case = _{
+  func_case
+}
+
+// prio of 60
+func_case = _{
+  fix | func | match_ | let_case
+}
+
+// prio of 70
+let_case = _{
+  let | app_case
+}
+
+// prio of 90
+app_case = _{
+  app | litteral
+}
+
+// prio of 100
+litteral = _{
+    "(" ~ top_expr ~ ")"
+  | lprop
+  | lset
+  | ltype
+  | variable 
+}
+
+lprop     = !{ "Prop" }
+lset      = !{ "Set" }
+ltype     = !{ "Type" ~ "(" ~ number ~ ")" }

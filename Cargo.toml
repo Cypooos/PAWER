@@ -1,0 +1,41 @@
+[package]
+name = "pawer_core"
+version = "0.1.0"
+edition = "2021"
+authors = [
+    "Coda Bourotte",
+    "Alexandre Kejikian",
+    "Florent Ferrari",
+    # ajoutez-vous, j'ai pas vos noms de famille !
+]
+description = "A rust library to doc Calculus of Construction"
+license = "MIT OR Apache-2.0"
+repository = "https://gitlab.aliens-lyon.fr/pawer/pawer_core"
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[profile.release]
+opt-level = "s"
+# Tell `rustc` to optimize for small code size.
+
+
+[rust-analyzer.cargo.features]
+diagnostics = { disabled = ["unresolved-proc-macro"] }
+
+
+[dependencies]
+lazy_static = "1.5.0"
+wasm-bindgen-test = "0.3.34"
+console_error_panic_hook = { version = "0.1.7", optional = true}
+wasm-bindgen = { version = "0.2.93", default-features = false}
+pest = "2.7.13"
+pest_derive = "2.7.13"
+thiserror = "1.0.64"
+serde_json = "1.0.132"
+serde = "1.0.214"
+serde_derive = "1.0.214"
