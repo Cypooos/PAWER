@@ -1,10 +1,13 @@
 use std::io;
 use std::io::Write;
-use pawer::{print_comms,print_state};
+use pawer::{definitions::GlobalContext,print_comms};
 
 
 // A simple top-level, mostly used for debbuging
 fn main() -> io::Result<()> {
+
+    let mut pa = GlobalContext::new();
+    pa.load_prelude();
 
     loop {
         print!(" > ");
@@ -16,10 +19,10 @@ fn main() -> io::Result<()> {
         stdin.read_line(&mut buffer)?;
 
         // send
-        print_comms(&buffer);
+        print_comms(&mut pa,&buffer);
 
         // print
-        print_state();
+        println!("{}",pa);
     }
 
 }

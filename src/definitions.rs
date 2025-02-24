@@ -479,18 +479,6 @@ impl GlobalContext {
         }
     }
 
-    /// Generate a new proof context
-    pub fn new_with_lib() -> GlobalContext {
-        let mut v = Self {
-            lambda_storage: Vec::new(),
-            goals: Vec::new(),
-            constants: HashMap::new(),
-            root: None,
-            inductives: HashMap::new(),
-        };
-        v.load_prelude();
-        v
-    }
 
     fn is_used_var_aux(&self, node: NodeIndex, indent: usize) -> bool {
         use LambdaNode::*;

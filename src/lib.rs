@@ -1,10 +1,5 @@
-use definitions::{GlobalContext, LambdaTerm};
-use crate::errors::Error;
+use definitions::GlobalContext;
 
-use lazy_static::lazy_static;
-use serde_derive::Serialize;
-use std::sync::Mutex;
-use wasm_bindgen::prelude::*;
 
 pub mod beta;
 pub mod definitions;
@@ -14,6 +9,7 @@ pub mod parsing;
 pub mod typing;
 pub mod utils;
 
+/*
 
 // a "static variable" containing our proof system. This is required by WASM.
 // functions beginning with the macro #[wasm_bindgen] in this file are usually wrappers around function of the library, but applied to this specific structure
@@ -53,32 +49,7 @@ pub fn send_command(text: &str) -> String {
 
 // ----- generic functions -----
 
-pub fn exec_command(text:&str) -> Result<String,Error> {
-    let mut proof = PROOF.lock().unwrap();
-    proof.exec_command(text)
-}
-pub fn exec_commands(text:&str) -> Result<String,Error> {
-    let mut proof = PROOF.lock().unwrap();
-    proof.exec_commands(text)
-}
 
-pub fn print_comm(text:&str) {
-    match exec_command(text) {
-        Ok(e) => println!("{e}"),
-        Err(e) => println!("{e}"),
-    }
-}
-pub fn print_comms(text:&str) {
-    match exec_commands(text) {
-        Ok(e) => println!("{e}"),
-        Err(e) => println!("{e}"),
-    }
-}
-
-pub fn print_state() {
-    let proof = PROOF.lock().unwrap();
-    println!("{}",proof);
-}
 
 pub fn parse(text: &str) -> Result<LambdaTerm, ()> {
     match parsing::parse_lambda(text) {
@@ -157,5 +128,17 @@ fn send_command_output(text: &str) -> Output {
         }
     }
 }
+*/
 
-
+pub fn print_comm(proof:&mut GlobalContext,text:&str) {
+    match proof.exec_command(text) {
+        Ok(e) => println!("{e}"),
+        Err(e) => println!("{e}"),
+    }
+}
+pub fn print_comms(proof:&mut GlobalContext,text:&str) {
+    match proof.exec_commands(text) {
+        Ok(e) => println!("{e}"),
+        Err(e) => println!("{e}"),
+    }
+}
